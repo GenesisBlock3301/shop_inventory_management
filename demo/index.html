@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ShopFlow</title>
+    <meta name="description" content="Interactive prototype of the ShopFlow inventory, sales and customer-due workflow, built from the product requirements document.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232563eb'/%3E%3Ctext x='50' y='69' font-family='Arial, sans-serif' font-size='54' font-weight='800' fill='%23ffffff' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="assets/css/vendor/bulma.min.css">
+    <link rel="stylesheet" href="assets/css/app.css">
+  </head>
+  <body>
+    <div id="app">
+      <section id="login-view" class="hero is-fullheight is-light">
+        <div class="hero-body">
+          <main class="container login-wrap">
+            <div class="box login-card">
+              <div class="login-card-head">
+                <p class="eyebrow">SHOPFLOW PROTOTYPE</p>
+                <span class="tag is-light build-tag">v0.1 walkthrough</span>
+              </div>
+              <h1 class="title is-3">Inventory &amp; Sales</h1>
+              <p class="subtitle is-6">An interactive walkthrough of the day-to-day workflow, built from the product requirements document.</p>
+              <ul class="scope-list">
+                <li><span class="scope-dot"></span>Stock &amp; inventory</li>
+                <li><span class="scope-dot"></span>Sales &amp; invoicing</li>
+                <li><span class="scope-dot"></span>Customer due tracking</li>
+                <li><span class="scope-dot"></span>Owner reporting</li>
+              </ul>
+              <form id="login-form">
+                <div class="field">
+                  <label class="label" for="login-name">Your name</label>
+                  <div class="control"><input id="login-name" class="input" required value="Nadia Rahman" autocomplete="name"></div>
+                </div>
+                <div class="field">
+                  <label class="label" for="login-role">View as</label>
+                  <div class="control select is-fullwidth">
+                    <select id="login-role"><option value="Staff">Staff</option><option value="Owner">Owner</option></select>
+                  </div>
+                </div>
+                <button class="button is-link is-fullwidth is-medium" type="submit">Enter prototype</button>
+              </form>
+              <p class="help mt-4">Sample data only — nothing is sent or saved outside this browser. Sales returns and VAT are planned for a later phase.</p>
+            </div>
+          </main>
+        </div>
+      </section>
+
+      <div id="workspace" class="is-hidden">
+        <div id="sidebar-backdrop" class="sidebar-backdrop is-hidden"></div>
+        <aside id="sidebar" class="sidebar" aria-label="Main navigation">
+          <div class="brand"><span class="brand-mark">S</span><span>ShopFlow<span class="brand-tag">Prototype</span></span></div>
+          <p class="menu-label">Daily work</p>
+          <ul class="menu-list">
+            <li><a href="#dashboard" data-page="dashboard" class="is-active">Dashboard</a></li>
+            <li><a href="#sale" data-page="sale">New Sale</a></li>
+            <li><a href="#inventory" data-page="inventory">Inventory</a></li>
+            <li><a href="#customers" data-page="customers">Customers &amp; Due</a></li>
+            <li id="owner-nav" class="is-hidden"><a href="#reports" data-page="reports">Owner Reports</a></li>
+          </ul>
+          <div class="sidebar-bottom">
+            <p id="user-label" class="has-text-weight-semibold"></p>
+            <button id="logout-btn" class="button is-small is-light is-fullwidth mb-2">Log out</button>
+            <button id="reset-demo" class="button is-small is-light is-fullwidth">Reset demo data</button>
+          </div>
+        </aside>
+        <main class="workspace-main">
+          <header class="topbar">
+            <button id="mobile-nav" class="button is-white is-hidden-tablet" aria-label="Open navigation">☰</button>
+            <div><p id="page-kicker" class="eyebrow">OPERATIONS</p><h2 id="page-title" class="title is-4">Dashboard</h2></div>
+            <button id="guided-demo" class="button is-link is-light">▶ Run guided demo</button>
+          </header>
+
+          <div id="live-status" class="sr-only" aria-live="polite"></div>
+
+          <section id="dashboard-page" class="app-page">
+            <div class="notification is-link is-light is-flex is-justify-content-space-between is-align-items-center is-flex-wrap-wrap gap-2">
+              <div><strong>Ready for the client walkthrough?</strong><br><span>Follow a sale from stock to partial payment and invoice.</span></div>
+              <button class="button is-link" data-go="sale">Start a new sale</button>
+            </div>
+            <div class="columns is-multiline">
+              <div class="column is-3-desktop is-6-tablet"><article class="metric-card"><p>Today’s sales</p><strong id="today-sales">৳0</strong><span>Posted invoices</span></article></div>
+              <div class="column is-3-desktop is-6-tablet"><article class="metric-card"><p>Collected today</p><strong id="today-collection">৳0</strong><span>Cash, bank &amp; mobile</span></article></div>
+              <div class="column is-3-desktop is-6-tablet"><article class="metric-card"><p>Outstanding due</p><strong id="total-due">৳0</strong><span>All active customers</span></article></div>
+              <div class="column is-3-desktop is-6-tablet"><article class="metric-card"><p id="fourth-metric-label">Low stock</p><strong id="fourth-metric-value">0</strong><span id="fourth-metric-note">Needs attention</span></article></div>
+            </div>
+            <article id="owner-panel" class="notification is-success is-light is-hidden"><strong>Owner view enabled</strong><br><span>Gross profit and below-minimum price overrides are visible only in this demo role.</span></article>
+            <div class="columns">
+              <div class="column is-7"><article class="box"><div class="level"><div><h3 class="title is-5">Recent transactions</h3><p class="subtitle is-7">Today’s activity</p></div></div><div id="recent-transactions" class="transaction-list"></div></article></div>
+              <div class="column is-5"><article class="box"><h3 class="title is-5">Quick actions</h3><div class="buttons are-medium"><button class="button is-link is-fullwidth" data-go="sale">New sale</button><button class="button is-light is-fullwidth" data-go="inventory">Add stock</button><button class="button is-light is-fullwidth" data-go="customers">Collect due</button></div></article></div>
+            </div>
+          </section>
+
+          <section id="sale-page" class="app-page is-hidden">
+            <div class="columns">
+              <div class="column is-8">
+                <article class="box">
+                  <div class="level is-mobile"><div><h3 class="title is-5">1. Customer</h3><p class="subtitle is-7">Choose who is buying today.</p></div><span class="tag is-info is-light">Required</span></div>
+                  <div class="field"><label class="label" for="sale-customer">Customer</label><div class="control select is-fullwidth"><select id="sale-customer"></select></div></div>
+                </article>
+                <article class="box">
+                  <div class="level is-mobile"><div><h3 class="title is-5">2. Add products</h3><p class="subtitle is-7">Selling price may be negotiated, within the demo limit.</p></div></div>
+                  <div class="columns is-multiline">
+                    <div class="column is-6"><div class="field"><label class="label" for="product-select">Product / variant</label><div class="control select is-fullwidth"><select id="product-select"></select></div></div></div>
+                    <div class="column is-2"><div class="field"><label class="label" for="sale-qty">Qty</label><div class="control"><input id="sale-qty" class="input" type="number" min="1" value="1"></div></div></div>
+                    <div class="column is-2"><div class="field"><label class="label" for="sale-price">Price</label><div class="control"><input id="sale-price" class="input" type="number" min="0"></div></div></div>
+                    <div class="column is-2 is-flex is-align-items-flex-end"><button id="add-item" class="button is-link is-fullwidth">Add</button></div>
+                  </div>
+                  <p id="stock-hint" class="help">Select a product to see available stock.</p>
+                  <p id="sale-error" class="help is-danger" role="alert"></p>
+                </article>
+                <article class="box">
+                  <div class="level"><div><h3 class="title is-5">3. Cart</h3><p class="subtitle is-7">Review items before payment.</p></div><span id="cart-count" class="tag is-light">0 items</span></div>
+                  <div class="table-container"><table class="table is-fullwidth"><thead><tr><th>Product</th><th class="has-text-right">Qty</th><th class="has-text-right">Price</th><th class="has-text-right">Total</th><th><span class="sr-only">Remove</span></th></tr></thead><tbody id="cart-body"></tbody></table></div>
+                  <p id="cart-empty" class="empty-state">No products added yet.</p>
+                </article>
+              </div>
+              <div class="column is-4"><aside class="box sticky-summary"><h3 class="title is-5">4. Payment</h3><div class="summary-row"><span>Invoice total</span><strong id="sale-total">৳0</strong></div><hr><div class="field"><label class="label" for="payment-amount">Received now</label><div class="control"><input id="payment-amount" class="input is-medium" type="number" min="0" value="0"></div><p class="help">Partial payment creates a visible due.</p></div><div class="summary-row"><span>Remaining due</span><strong id="sale-due">৳0</strong></div><button id="confirm-sale" class="button is-link is-fullwidth is-medium mt-5">Confirm sale</button><p id="confirm-error" class="help is-danger mt-2" role="alert"></p></aside></div>
+            </div>
+          </section>
+
+          <section id="inventory-page" class="app-page is-hidden">
+            <div class="columns">
+              <div class="column is-4">
+                <article class="box"><h3 class="title is-5">Stock In</h3><p class="subtitle is-7">Add received finished products.</p><form id="stock-form"><div class="field"><label class="label" for="stock-product">Product / variant</label><div class="control select is-fullwidth"><select id="stock-product"></select></div></div><div class="field"><label class="label" for="stock-qty">Quantity received</label><div class="control"><input id="stock-qty" class="input" type="number" min="1" value="10" required></div></div><div class="field"><label class="label" for="batch-number">Batch number <span class="has-text-grey has-text-weight-normal">optional</span></label><div class="control"><input id="batch-number" class="input" placeholder="e.g. B-2026-09"></div></div><button class="button is-link is-fullwidth">Post stock in</button></form></article>
+              </div>
+              <div class="column is-8">
+                <article class="box">
+                  <div class="tabs">
+                    <ul>
+                      <li id="tab-stock-current" class="is-active"><a data-stock-tab="current">Current Stock</a></li>
+                      <li id="tab-stock-history"><a data-stock-tab="history">Stock History</a></li>
+                    </ul>
+                  </div>
+                  <div id="stock-view-current">
+                    <p class="subtitle is-7">Search stock available for sale.</p>
+                    <div class="field"><div class="control"><input id="stock-search" class="input" type="search" placeholder="Search product or variant"></div></div>
+                    <div class="table-container"><table class="table is-fullwidth is-hoverable"><thead><tr><th>Product</th><th>Variant</th><th class="has-text-right">Available</th><th>Unit</th><th class="has-text-right">Price</th><th class="has-text-right owner-only-col">Cost</th><th>Status</th></tr></thead><tbody id="stock-body"></tbody></table></div>
+                  </div>
+                  <div id="stock-view-history" class="is-hidden">
+                    <p class="subtitle is-7">Every stock-in and sale movement, most recent first.</p>
+                    <div class="columns is-multiline mb-0">
+                      <div class="column is-6"><div class="control select is-fullwidth"><select id="history-product-filter"><option value="">All products</option></select></div></div>
+                      <div class="column is-6"><div class="control select is-fullwidth"><select id="history-type-filter"><option value="">All movement types</option><option value="Stock In">Stock In</option><option value="Sale">Sale</option></select></div></div>
+                    </div>
+                    <div class="table-container"><table class="table is-fullwidth"><thead><tr><th>Date</th><th>Product</th><th>Variant</th><th>Type</th><th class="has-text-right">Quantity</th><th>Reference</th></tr></thead><tbody id="stock-history-body"></tbody></table></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section id="customers-page" class="app-page is-hidden">
+            <div class="columns">
+              <div class="column is-4">
+                <article class="box mb-5">
+                  <h3 class="title is-5">Add customer</h3>
+                  <p class="subtitle is-7">Mobile number identifies each customer and must be unique.</p>
+                  <form id="add-customer-form">
+                    <div class="field"><label class="label" for="new-customer-name">Name</label><div class="control"><input id="new-customer-name" class="input" placeholder="e.g. Karim Traders" required></div></div>
+                    <div class="field"><label class="label" for="new-customer-mobile">Mobile number</label><div class="control"><input id="new-customer-mobile" class="input" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX" required></div></div>
+                    <div class="field"><label class="label" for="new-customer-address">Address <span class="has-text-grey has-text-weight-normal">optional</span></label><div class="control"><input id="new-customer-address" class="input" placeholder="e.g. Elephant Road, Dhaka"></div></div>
+                    <button class="button is-link is-fullwidth" type="submit">Add customer</button>
+                    <p id="new-customer-error" class="help is-danger mt-2" role="alert"></p>
+                  </form>
+                </article>
+                <article class="box"><h3 class="title is-5">Customer due</h3><div class="field"><label class="label" for="customer-select">Customer</label><div class="control select is-fullwidth"><select id="customer-select"></select></div></div><p id="customer-mobile-hint" class="help mb-3"></p><div class="due-panel"><p>Current outstanding due</p><strong id="customer-due">৳0</strong></div><form id="collection-form" class="mt-5"><div class="field"><label class="label" for="collection-amount">Receive payment</label><div class="control"><input id="collection-amount" class="input" type="number" min="1" value="2000"></div></div><button class="button is-link is-fullwidth">Confirm collection</button><p id="collection-error" class="help is-danger" role="alert"></p></form></article>
+              </div>
+              <div class="column is-8">
+                <article class="box"><div class="level"><div><h3 class="title is-5">Customer statement</h3><p class="subtitle is-7">Invoice and payment history.</p></div><button id="print-statement" class="button is-light">Print</button></div><div class="table-container"><table class="table is-fullwidth"><thead><tr><th>Date</th><th>Transaction</th><th>Reference</th><th class="has-text-right">Bill</th><th class="has-text-right">Payment</th><th class="has-text-right">Balance</th></tr></thead><tbody id="statement-body"></tbody></table></div></article>
+                <article class="box mt-5"><h3 class="title is-5">Customer list</h3><p class="subtitle is-7">Everyone tracked in this prototype.</p><div class="table-container"><table class="table is-fullwidth is-hoverable"><thead><tr><th>Name</th><th>Mobile</th><th>Address</th><th>Status</th><th class="has-text-right">Outstanding due</th></tr></thead><tbody id="customer-list-body"></tbody></table></div></article>
+              </div>
+            </div>
+            <div id="statement-print" class="print-only print-target"></div>
+          </section>
+
+          <section id="reports-page" class="app-page is-hidden">
+            <div class="notification is-info is-light"><strong>Owner-only report</strong><br><span>Demo figures use sample costs and are for client walkthrough only.</span></div>
+            <div class="columns is-multiline"><div class="column is-4"><article class="metric-card"><p>Posted sales</p><strong id="report-sales">৳0</strong><span>Demo invoices</span></article></div><div class="column is-4"><article class="metric-card"><p>Gross profit</p><strong id="report-profit">৳0</strong><span>Historical demo cost</span></article></div><div class="column is-4"><article class="metric-card"><p>Price overrides</p><strong id="report-overrides">0</strong><span>Owner-approved below minimum</span></article></div></div>
+            <article class="box"><h3 class="title is-5">Sales and profit</h3><p class="subtitle is-7">Posted sales in this demo session.</p><div class="table-container"><table class="table is-fullwidth"><thead><tr><th>Invoice</th><th>Customer</th><th class="has-text-right">Sales</th><th class="has-text-right">Gross profit</th><th>Price control</th></tr></thead><tbody id="report-body"></tbody></table></div></article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="invoice-modal" class="modal"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Sale completed</p><button class="delete" aria-label="Close invoice"></button></header><section class="modal-card-body"><div id="invoice-content" class="print-target"></div></section><footer class="modal-card-foot"><button id="print-invoice" class="button is-link">Print invoice</button><button id="view-report" class="button is-light is-hidden">View owner report</button><button class="button close-modal">Done</button></footer></div></div>
+    <div id="toast" class="toast is-hidden" role="status" aria-live="polite"></div>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>

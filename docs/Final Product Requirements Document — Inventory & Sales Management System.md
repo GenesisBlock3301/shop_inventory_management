@@ -24,10 +24,12 @@ The system will help the business manage:
 - Partial payments
 - Customer dues
 - Customer statements
-- Daily/monthly sales
+- Daily/monthly/yearly sales
+- Monthly/yearly collection breakdown
 - Current stock
 - Basic gross profit
 - Outstanding receivables
+- Owner business-performance dashboard
 - Staff permissions and transaction accountability
 
 Primary workflow:
@@ -43,17 +45,13 @@ Finished Product
 → Reports
 ```
 
-The product should remain simple for normal shop users while protecting business-critical data from unauthorized manipulation.
-
 ---
 
 # 2. Scope Clarification
 
 ## 2.1 Production Scope
 
-The client requires produced/finished goods to be added into stock.
-
-V1 therefore supports:
+V1 supports:
 
 ```text
 Finished Product
@@ -61,7 +59,7 @@ Finished Product
 → Inventory
 ```
 
-V1 does **not** manage:
+V1 does not manage:
 
 - Raw materials
 - BOM
@@ -69,8 +67,6 @@ V1 does **not** manage:
 - Manufacturing planning
 - Raw-material consumption
 - Factory production costing
-
-Manufacturing workflow is outside the BDT 25,000 scope.
 
 ---
 
@@ -85,8 +81,9 @@ For V1, "Accounts" means operational business accounting:
 - Stock movement
 - Current inventory
 - Basic gross-profit reporting
+- Monthly and yearly business summaries
 
-V1 does **not** include:
+V1 does not include:
 
 - General Ledger
 - Chart of Accounts
@@ -105,7 +102,7 @@ V1 does **not** include:
 The system should:
 
 - Keep inventory accurate.
-- Support different product variants and pack sizes.
+- Support product variants and pack sizes.
 - Support different rates.
 - Support batch-wise stock where required.
 - Allow quick invoice creation.
@@ -115,13 +112,14 @@ The system should:
 - Support partial payments.
 - Track customer dues.
 - Produce customer statements.
-- Show how much stock existed and how much remains.
-- Show daily/monthly sales.
-- Show collections.
+- Show previous and current stock.
+- Show daily, monthly and yearly sales.
+- Show monthly and yearly collections.
 - Show outstanding dues.
 - Calculate basic gross profit.
-- Prevent unauthorized stock, price, invoice and payment manipulation.
-- Remain simple enough for shop staff to use with minimal training.
+- Give the Owner a month-by-month yearly business overview.
+- Prevent unauthorized manipulation.
+- Remain simple enough for shop staff.
 
 ---
 
@@ -129,7 +127,7 @@ The system should:
 
 ## 4.1 Simple for Staff
 
-Primary staff actions should be limited to:
+Primary staff actions:
 
 ```text
 Stock In
@@ -140,13 +138,11 @@ Find Customer
 Print Invoice
 ```
 
-Technical database concepts must remain hidden.
-
 ---
 
 ## 4.2 Useful for Owner
 
-The owner should quickly understand:
+The Owner should quickly understand:
 
 ```text
 How much was sold?
@@ -154,7 +150,9 @@ How much cash was collected?
 How much is still due?
 How much stock remains?
 What was the gross profit?
-Who created the transaction?
+How is this month performing?
+How is this year performing?
+Which months performed better or worse?
 ```
 
 ---
@@ -171,15 +169,11 @@ The browser must never be trusted for:
 - Due amount
 - User permissions
 
-Frontend validation improves usability.
-
-Backend validation protects the business.
-
 ---
 
 ## 4.4 Avoid Overengineering
 
-V1 should not introduce unnecessary:
+V1 will not introduce unnecessary:
 
 - Microservices
 - Enterprise workflows
@@ -190,80 +184,48 @@ V1 should not introduce unnecessary:
 
 ---
 
-## 4.5 Future Reuse
-
-The first implementation is for one electrical shop.
-
-The same codebase should later be reusable for other shops with similar workflows through:
-
-```text
-Clone Application
-→ Configure Business
-→ Create New Database
-→ Add New Products
-→ Create Users
-→ Deploy Separately
-```
-
-Future reuse must not make V1 harder to use.
-
----
-
 # 5. User Roles
 
-## 5.1 Owner
+## Owner
 
 Owner can:
 
-- View all stock.
-- View sales.
-- View collections.
-- View dues.
-- View gross profit.
-- Manage users.
-- Manage products.
-- Add stock.
-- Create invoices.
-- Receive payments.
-- View customer statements.
-- Access all reports.
-- Perform permitted price overrides.
-- Void incorrect transactions where supported.
+- View all stock
+- View sales
+- View collections
+- View dues
+- View gross profit
+- View monthly/yearly business performance
+- Manage users
+- Manage products
+- Add stock
+- Create invoices
+- Receive payments
+- View statements
+- Access reports
+- Override permitted price restrictions
+- Void transactions where permitted
 
----
+## Admin
 
-## 5.2 Admin
+Admin handles most operational activities according to permissions.
 
-Admin can perform most operational activities according to assigned permissions.
+## Staff
 
----
+Staff normally handles:
 
-## 5.3 Staff
-
-Staff can normally:
-
-- Create invoices.
-- Receive payments.
-- Search customers.
-- View available stock.
-- Add stock if permitted.
-- Print invoices.
-
-Staff should not automatically access:
-
-- User management
-- Sensitive configuration
-- Gross-profit information
-- Unauthorized price override
-- Historical transaction modification
+- Invoice creation
+- Payments
+- Customers
+- Stock lookup
+- Stock entry if permitted
+- Invoice printing
 
 ---
 
 # 6. Business Configuration
 
-Business information must be configurable.
-
-Fields may include:
+Configurable fields:
 
 - Business Name
 - Address
@@ -275,71 +237,32 @@ Fields may include:
 - Invoice Footer
 - Currency
 
-Example:
-
-```text
-Business Name:
-ABC Electrical
-```
-
-must come from configuration rather than hardcoded application logic.
-
 ---
 
 # 7. Product Management
 
-The system must separate:
+Model:
 
 ```text
 Product
-→ Product Variant / SKU
+→ ProductVariant
 ```
 
 Example:
 
 ```text
-Product:
 LED Bulb
-
-Variants:
-12W / B22 / 6500K
-15W / B22 / 6500K
-20W / B22 / 6500K
+→ 12W / B22 / 6500K
+→ 15W / B22 / 6500K
 ```
 
-Another example:
-
-```text
-Product:
-MCB
-
-Variants:
-16A / 1P
-32A / 2P
-63A / 4P
-```
-
-Another:
-
-```text
-Product:
-Cable
-
-Variants:
-1.5mm² / Red
-2.5mm² / Black
-4mm² / Red
-```
-
-The product model must not assume all products use the same measurement type.
+Variants are actual sellable SKUs.
 
 ---
 
 # 8. Category & Brand Management
 
-Categories should be configurable.
-
-Electrical-shop examples:
+Examples:
 
 ```text
 Lighting
@@ -350,23 +273,13 @@ Circuit Breaker
 Accessories
 ```
 
-Brands may include:
-
-```text
-Super Star
-BBS
-Schneider
-Walton
-MK
-```
-
-Future shops may create different categories and brands without source-code changes.
+Brands remain configurable.
 
 ---
 
 # 9. Unit of Measure
 
-Supported units may include:
+Examples:
 
 ```text
 PCS
@@ -377,121 +290,125 @@ SET
 ROLL
 ```
 
-Examples:
-
-```text
-LED Bulb → PCS
-Cable → MTR
-Cable Pack → COIL
-```
-
-Fractional quantity should only be allowed where appropriate.
+Fractional quantity is allowed only for suitable units.
 
 ---
 
-# 10. Pack Size / Variant Handling
+# 10. Product Variant / Pack Handling
 
-The client's "different pack sizes" requirement will be handled through product variants.
+A variant may have:
 
-Example:
-
-```text
-Product:
-Cable
-
-Variants:
-1.5mm² / 10m
-1.5mm² / 50m
-1.5mm² / 90m
-```
-
-Each variant can have:
-
-- Separate SKU
-- Separate stock
-- Separate cost
-- Separate selling price
-- Separate minimum selling price
-- Separate unit
-- Separate batch tracking rule
+- SKU
+- Unit
+- Standard price
+- Minimum price
+- Batch tracking setting
+- Variant-specific stock
 
 ---
 
-# 11. Stock Entry
+# 11. Inventory Model
+
+Canonical inventory model:
+
+```text
+Product
+→ ProductVariant
+→ InventoryLot
+→ StockMovement
+```
+
+`ProductBatch` will not exist as a separate V1 model.
+
+`InventoryLot` represents each stock receipt/cost layer.
+
+It may contain:
+
+```text
+variant
+batch_no (optional)
+quantity_received
+quantity_remaining
+unit_cost
+received_at
+```
+
+---
+
+# 12. Stock Entry
 
 Authorized users can post finished products into inventory.
 
-Stock entry fields:
+Fields:
 
 - Product
-- Variant / Pack Size
+- Variant
 - Quantity
 - Unit Cost
 - Standard Selling Price
 - Optional Batch Number
 - Date
 
-Example:
-
-```text
-Product:
-LED Bulb
-
-Variant:
-12W / B22
-
-Quantity:
-50
-
-Unit Cost:
-৳180
-
-Standard Price:
-৳220
-
-Batch:
-Optional
-```
-
-After saving:
+Example result:
 
 ```text
 Previous Stock: 100
-Added:           50
-Current Stock:  150
+Added:            50
+Current Stock:   150
 ```
 
 ---
 
-# 12. Batch / Lot Handling
+# 13. Batch / Lot Handling
 
-Batch/Lot Number must be supported because it is part of the original client requirement.
+Batch number is optional unless the product requires batch tracking.
 
-Batch tracking can be:
+Example:
 
 ```text
-Required
+InventoryLot
+Batch No: B-2026-010
+Qty: 50
+Cost: ৳180
 ```
-
-for products where the business needs batch-wise tracking.
 
 or:
 
 ```text
-Optional
+Batch No: NULL
 ```
 
-for normal retail products where batch information is not practically used.
-
-Internally, the system may maintain inventory lots even when an external batch number is absent.
+Both are valid.
 
 ---
 
-# 13. Current Inventory
+# 14. FIFO Stock Consumption
 
-Users should be able to view current stock.
+V1 uses:
+
+**FIFO — First In, First Out**
 
 Example:
+
+```text
+Lot A: 20 pcs @ ৳180
+Lot B: 30 pcs @ ৳195
+```
+
+Sale of 25:
+
+```text
+20 from Lot A
+5 from Lot B
+```
+
+This determines historical COGS and profit.
+
+---
+
+# 15. Current Inventory
+
+Users can view:
 
 | Product | Variant | Available | Unit |
 |---|---|---:|---|
@@ -499,129 +416,135 @@ Example:
 | BBS Cable | 1.5mm²/90m | 18 | COIL |
 | Schneider MCB | 32A/2P | 27 | PCS |
 
-Basic search should support product and variant lookup.
-
 ---
 
-# 14. Stock Movement History
+# 16. Stock Movement
 
-The system must preserve stock history.
+`StockMovement` records why inventory changed.
 
 Example:
 
 ```text
-LED Bulb 12W
-
-STOCK IN      +100
-STOCK IN       +50
-SALE           -10
-------------------
-CURRENT         140
+STOCK_IN    +50
+SALE        -10
+REVERSAL    +10
 ```
 
-The owner should be able to understand:
-
-```text
-How much stock existed?
-How much was added?
-How much was sold?
-How much remains?
-```
+Current stock is not manually edited.
 
 ---
 
-# 15. Negative Stock Prevention
+# 17. Negative Stock Prevention
 
-The system must reject:
+If:
 
 ```text
-Requested Quantity > Available Quantity
+Available = 5
+Requested = 8
 ```
 
-Example:
+result:
 
 ```text
-Available:
-5
-
-Requested:
-8
-```
-
-Result:
-
-```text
-Cannot complete sale.
+Sale rejected.
 Only 5 units are available.
 ```
 
-This must be checked on the backend during final invoice posting.
+Backend validation is mandatory.
 
 ---
 
-# 16. Customer / Party Management
+# 18. Customer / Party Management
 
-Customer information:
+Fields:
 
 - Name
 - Mobile
 - Address
 - Status
 
-A standard customer may exist for normal cash sales:
+A default customer may exist:
 
 ```text
 Walk-in Customer
 ```
 
-Customer due must come from sales and payments rather than an arbitrary manually edited balance.
+Customer due is calculated from invoices and payments.
 
 ---
 
-# 17. New Sales Invoice
+# 19. Invoice Lifecycle
 
-Users should be able to create invoices directly from available stock.
-
-Typical UI:
+Canonical lifecycle:
 
 ```text
-Customer:
-Rahman Electric
-
-Product:
-LED Bulb
-
-Variant:
-12W / B22
-
-Available:
-140 pcs
-
-Standard Price:
-৳220
-
-Selling Price:
-৳205
-
-Quantity:
-10
-
-Total:
-৳2,050
+DRAFT
+POSTED
+VOID
 ```
 
-Multiple products must be supported in one invoice.
+## DRAFT
+
+Editable and does not affect stock.
+
+## POSTED
+
+Final sale; stock deducted.
+
+## VOID
+
+Cancelled through controlled reversal.
 
 ---
 
-# 18. Negotiated Selling Price
+# 20. Derived Payment Status
 
-Bangladesh retail/wholesale bargaining must be supported.
-
-The system should distinguish:
+Payment status is separate from invoice lifecycle.
 
 ```text
-Standard / Suggested Price
+UNPAID
+PARTIAL
+PAID
+```
+
+Example:
+
+```text
+Invoice Total = ৳10,000
+Payment = ৳6,000
+
+Lifecycle = POSTED
+Payment Status = PARTIAL
+```
+
+Payment status is derived rather than manually maintained.
+
+---
+
+# 21. New Sales Invoice
+
+Typical flow:
+
+```text
+Customer
+→ Product
+→ Variant
+→ Quantity
+→ Negotiated Price
+→ Payment
+→ Complete Sale
+```
+
+Multiple items are supported.
+
+---
+
+# 22. Negotiated Selling Price
+
+The system distinguishes:
+
+```text
+Standard Price
 ```
 
 from:
@@ -633,92 +556,44 @@ Actual Selling Price
 Example:
 
 ```text
-Suggested Price:
-৳220
-
-Negotiated Price:
-৳205
+Standard:   ৳220
+Negotiated: ৳205
 ```
 
-The negotiated value becomes the actual historical sale price.
-
-Reports and profit calculations must use the actual selling price.
+`InvoiceItem.unit_price = ৳205`
 
 ---
 
-# 19. Minimum Selling Price Protection
-
-Each variant may have:
-
-- Default Selling Price
-- Minimum Selling Price
+# 23. Minimum Price Protection
 
 Example:
 
 ```text
-Cost:               ৳180
-Default Price:      ৳220
-Minimum Price:      ৳190
+Cost:          ৳180
+Default:       ৳220
+Minimum:       ৳190
 ```
 
-Staff may sell:
+Staff/Admin can sell at or above ৳190.
 
-```text
-৳190
-৳200
-৳205
-৳220
-```
-
-but if Staff submits:
-
-```text
-৳170
-```
-
-the backend must reject the sale.
-
-Owner/Admin may override if business policy allows.
-
-V1 will use simple permission-based override, not a complex approval workflow.
+Owner may explicitly override below minimum.
 
 ---
 
-# 20. Client-Side Manipulation Protection
+# 24. Client-Side Manipulation Protection
 
-A user may attempt to manipulate:
+Backend validates independently:
 
-- HTML
-- JavaScript
-- HTMX request
-- Selling price
+- Price
 - Quantity
-- Invoice total
-- Payment amount
-
-The backend must independently validate everything.
-
-Example:
-
-```text
-Minimum Allowed:
-৳190
-
-Browser submits:
-৳120
-```
-
-Result:
-
-```text
-Rejected
-```
+- Stock
+- Invoice totals
+- Payments
+- Permissions
 
 ---
 
-# 21. Invoice Calculation
-
-Backend calculates:
+# 25. Invoice Calculation
 
 ```text
 Line Total
@@ -726,333 +601,155 @@ Line Total
 Quantity × Actual Selling Price
 ```
 
-Invoice Total:
-
-```text
-Sum of all Invoice Items
-```
-
-The backend must ignore manipulated totals submitted by the browser.
+Invoice total is recalculated on the backend.
 
 ---
 
-# 22. Invoice Posting
+# 26. Invoice Posting
 
-Invoice posting and stock deduction must happen as one atomic operation.
-
-Conceptual flow:
+Posting must be atomic:
 
 ```text
-Validate Customer
-→ Validate Products
-→ Validate Quantity
-→ Validate Selling Price
-→ Re-check Stock
+Validate
+→ Lock Inventory
 → Create Invoice
-→ Create Invoice Items
-→ Deduct Stock
-→ Record Stock Movements
-→ Record Initial Payment
-→ Commit Transaction
+→ Create Items
+→ Consume InventoryLots
+→ Record StockMovement
+→ Create Payment
+→ Allocate Payment
+→ Commit
 ```
 
-If any critical operation fails:
+Any failure:
 
 ```text
-Rollback
-```
-
-The system must never create:
-
-```text
-Invoice without stock deduction
-```
-
-or:
-
-```text
-Stock deduction without invoice
+ROLLBACK
 ```
 
 ---
 
-# 23. Concurrent Sales Protection
+# 27. Concurrent Sales Protection
 
-Example:
-
-```text
-Available Stock = 10
-
-Staff A tries to sell 8
-Staff B tries to sell 7
-```
-
-Both transactions must not succeed.
-
-Stock must be revalidated and locked during final sale posting.
+Database transactions and row locking must prevent overselling.
 
 ---
 
-# 24. Invoice Status
+# 28. Duplicate Submission Protection
 
-Invoices should support:
+Important transaction forms should use an idempotency/submission key.
 
-```text
-DRAFT
-POSTED
-VOID
-```
-
-Draft:
-
-```text
-Editable
-```
-
-Posted:
-
-```text
-Official Business Transaction
-```
-
-Normal Staff users must not silently modify posted invoices.
-
-Payment status is derived separately from the invoice lifecycle:
-
-```text
-UNPAID   = no payment has been allocated
-PARTIAL  = some, but not all, of the invoice total has been allocated
-PAID     = the full invoice total has been allocated
-```
-
-`UNPAID`, `PARTIAL`, and `PAID` must not replace the `DRAFT`, `POSTED`, and
-`VOID` lifecycle states.
+Duplicate clicks must not create duplicate records.
 
 ---
 
-# 25. Duplicate Submission Protection
+# 29. Invoice Printing
 
-Repeated clicks, browser refreshes or slow requests should not easily create duplicate invoices.
+Printed invoice shows:
 
-Invoice numbers must be unique.
-
----
-
-# 26. Invoice Printing
-
-After successful sale:
-
-```text
-✓ Sale Completed
-
-Invoice: INV-0001
-Total:   ৳15,300
-Paid:    ৳10,000
-Due:      ৳5,300
-
-[ Print Invoice ]
-```
-
-Printed invoice should show:
-
-- Business information
+- Business details
 - Invoice number
 - Date
 - Customer
-- Products
-- Variants
+- Product
+- Variant
 - Quantity
 - Actual selling price
 - Total
 - Paid
 - Due
 
-Internal information such as:
-
-- Cost price
-- Minimum selling price
-- Profit
-
-must not appear on customer invoices.
+Cost/minimum price/profit remain internal.
 
 ---
 
-# 27. Cash Collection
+# 30. Payment Model
 
-The client requires sold money to be recorded as cash received.
-
-Supported payment methods:
+Canonical model:
 
 ```text
-CASH
-BANK
-MOBILE BANKING
-OTHER
+Customer
+→ Payment
+→ PaymentAllocation
+→ Invoice
 ```
+
+`Payment.invoice_id` is not used.
+
+---
+
+# 31. Payment Allocation
+
+Payment during a new sale is allocated to that invoice.
+
+General due collection automatically pays the oldest outstanding invoice first.
 
 Example:
 
 ```text
-Invoice:
-৳15,300
-
-Cash Received:
-৳10,000
-
-Outstanding:
-৳5,300
+INV-001 Due = ৳3,000
+INV-002 Due = ৳5,000
+Payment     = ৳4,000
 ```
 
-The system should maintain:
-
-- Payment amount
-- Payment date
-- Customer
-- Payment method
-- User who received it
-
----
-
-# 28. Partial Payment & Due
-
-If the customer pays less than the invoice amount:
+Allocation:
 
 ```text
-Invoice:
-৳15,300
-
-Payment:
-৳10,000
-
-Due:
-৳5,300
+INV-001 = ৳3,000
+INV-002 = ৳1,000
 ```
-
-the remaining amount automatically becomes outstanding.
 
 ---
 
-# 29. Later Due Payment
+# 32. Partial Payment & Due
 
 Example:
 
 ```text
-Customer:
-Rahman Electric
-
-Outstanding:
-৳5,300
-
-Receive:
-৳3,000
+Invoice: ৳15,300
+Paid:    ৳10,000
+Due:      ৳5,300
 ```
 
-Result:
-
-```text
-Payment Received:
-৳3,000
-
-Remaining Due:
-৳2,300
-```
-
-The previous payment must remain in payment history.
+Later payment reduces the outstanding amount.
 
 ---
 
-# 30. Payment Protection
-
-Backend must reject:
-
-- Negative payment
-- Invalid zero payment
-- Invalid over-allocation
-- Payment manipulation
-- Unauthorized payment changes
-
-Payment history must not be replaced by simply editing a single due field.
-
----
-
-# 31. Customer / Party Statement
+# 33. Customer Statement
 
 Example:
 
 | Date | Transaction | Bill | Payment | Balance |
 |---|---|---:|---:|---:|
 | Sep 12 | INV-001 | 15,300 | — | 15,300 |
-| Sep 12 | Cash Receive | — | 10,000 | 5,300 |
-| Sep 15 | Cash Receive | — | 3,000 | 2,300 |
-
-Summary:
-
-```text
-Total Purchase
-Total Payment
-Outstanding Due
-```
-
-This directly covers the client's party-statement requirement.
+| Sep 12 | Payment | — | 10,000 | 5,300 |
+| Sep 15 | Payment | — | 3,000 | 2,300 |
 
 ---
 
-# 32. Gross Profit
+# 34. Gross Profit
 
-Basic gross profit must use:
+Formula:
 
 ```text
-Actual Selling Revenue
+Actual Sales Revenue
 -
-Actual Historical Stock Cost
+Actual Historical Inventory Cost
 ```
 
 Example:
 
 ```text
-Cost:
-৳180
-
-Suggested Price:
-৳220
-
-Negotiated Sale:
-৳205
+Sale Price = ৳205
+Cost       = ৳180
+Profit     = ৳25
 ```
-
-Actual profit:
-
-```text
-৳205 - ৳180
-=
-৳25 per unit
-```
-
-Profit must never be calculated using the suggested price when the product was sold at a lower negotiated rate.
 
 ---
 
-# 33. Historical Cost Protection
+# 35. Staff Dashboard
 
-Example:
-
-```text
-January Stock:
-Cost = ৳180
-
-March Stock:
-Cost = ৳195
-```
-
-A January sale must continue using the January stock cost.
-
-Future stock cost changes must not modify old profit calculations.
-
----
-
-# 34. Staff Dashboard
-
-Staff dashboard should focus on operational actions:
+Staff dashboard prioritizes operations:
 
 ```text
 [ New Invoice ]
@@ -1061,7 +758,7 @@ Staff dashboard should focus on operational actions:
 [ Find Customer ]
 ```
 
-Optional small summary:
+Optional small indicators:
 
 ```text
 Today's Sales
@@ -1069,47 +766,177 @@ Today's Collection
 Invoice Count
 ```
 
-Staff should not be overwhelmed with unnecessary analytics.
+No complex business analytics are required for Staff.
 
 ---
 
-# 35. Owner Dashboard
+# 36. Owner Dashboard
 
-Owner dashboard may show:
+The Owner Dashboard is a key V1 business-summary screen.
+
+It must support three primary views:
+
+```text
+Today
+Monthly
+Yearly
+```
+
+The Owner should be able to change the selected period without navigating into separate report modules.
+
+---
+
+## 36.1 Today's Summary
+
+Show:
 
 ```text
 Today's Sales
-Monthly Sales
 Today's Collection
-Outstanding Due
-Current Stock
-Gross Profit
-Low Stock
+Today's Outstanding Created
+Today's Gross Profit
+Invoice Count
 ```
-
-The owner should understand the business situation quickly.
 
 ---
 
-# 36. Reports
+## 36.2 Monthly Summary
 
-V1 reports:
+The Owner can select a month and year.
+
+Example:
+
+```text
+September 2026
+```
+
+Summary cards:
+
+```text
+Total Sales        ৳485,000
+Total Collection   ৳430,000
+Outstanding Due     ৳55,000
+COGS               ৳392,000
+Gross Profit         ৳93,000
+Invoice Count             142
+```
+
+Optional supporting information:
+
+```text
+Top Selling Products
+Customers With Highest Due
+Low Stock Products
+```
+
+The dashboard should make it clear that:
+
+```text
+Sales ≠ Collection
+```
+
+because invoices can remain partially unpaid.
+
+---
+
+## 36.3 Yearly Summary
+
+The Owner can select a year.
+
+Example:
+
+```text
+Year: 2026
+```
+
+Summary:
+
+```text
+Total Sales         ৳5,850,000
+Total Collection    ৳5,300,000
+Current Outstanding   ৳550,000
+COGS                ৳4,620,000
+Gross Profit        ৳1,230,000
+```
+
+The yearly dashboard must also include a **month-by-month breakdown**.
+
+Example:
+
+| Month | Sales | Collection | Gross Profit |
+|---|---:|---:|---:|
+| January | ৳420,000 | ৳390,000 | ৳85,000 |
+| February | ৳460,000 | ৳430,000 | ৳92,000 |
+| March | ৳510,000 | ৳470,000 | ৳101,000 |
+| ... | ... | ... | ... |
+| December | ৳530,000 | ৳495,000 | ৳109,000 |
+
+This allows the Owner to identify:
+
+- Strong months
+- Weak months
+- Sales trends
+- Collection trends
+- Profit trends
+
+A simple bar/line visualization may be added if it remains within V1 implementation effort.
+
+The tabular breakdown is the required baseline.
+
+---
+
+## 36.4 Outstanding Due Rule
+
+**Current outstanding due must not be calculated by adding each month's historical due.**
+
+Example:
+
+```text
+January Invoice Due = ৳10,000
+Customer pays it in February.
+```
+
+The January due should not remain part of the current yearly outstanding balance.
+
+Therefore:
+
+```text
+Current Outstanding
+=
+Current unpaid portion of all POSTED invoices
+```
+
+Monthly/yearly sales and collection are period-based.
+
+Outstanding receivable is a current balance.
+
+---
+
+# 37. Reports
+
+V1 includes:
 
 - Daily Sales
 - Monthly Sales
+- Yearly Sales
 - Cash Collection
 - Monthly Collection
+- Yearly Collection
 - Customer Due
 - Customer Statement
 - Current Stock
 - Stock Movement
 - Basic Gross Profit
+- Monthly Gross Profit
+- Yearly Gross Profit
 
-Filters may include:
+Common filters:
 
 ```text
 Date From
 Date To
+Month
+Year
 Customer
 Product
 Variant
@@ -1117,192 +944,195 @@ Variant
 
 ---
 
-# 37. Monthly Business Summary
+# 38. Monthly Business Report
 
-The system should answer the client's requested monthly questions:
+The Monthly Report answers:
 
 ```text
-How much was sold this month?
-How much cash was collected?
-How much remains due?
-How much stock remains?
+How much was sold?
+How much was collected?
 How much gross profit was generated?
+How many invoices were created?
+What is currently outstanding?
 ```
 
 Example:
 
 ```text
-Monthly Sales        ৳485,000
-Collection           ৳430,000
-Outstanding Due       ৳55,000
-COGS                  ৳392,000
-Gross Profit           ৳93,000
+September 2026
+
+Sales              ৳485,000
+Collection         ৳430,000
+COGS               ৳392,000
+Gross Profit        ৳93,000
+Invoice Count             142
+Current Outstanding ৳55,000
 ```
 
 ---
 
-# 38. Authentication & Authorization
+# 39. Yearly Business Report
 
-Use Django's authentication system.
-
-Roles:
+The Yearly Report answers:
 
 ```text
-Owner
-Admin
-Staff
+How much was sold during the year?
+How much was collected during the year?
+What was total COGS?
+What was gross profit?
+What is currently outstanding?
+How did individual months perform?
 ```
 
-Permissions must be enforced on the backend.
-
-Hiding a button or menu is not sufficient.
-
-If Staff manually attempts a restricted URL or request:
+Example:
 
 ```text
-→ Deny
+2026
+
+Sales               ৳5,850,000
+Collection          ৳5,300,000
+COGS                ৳4,620,000
+Gross Profit        ৳1,230,000
+Current Outstanding   ৳550,000
 ```
+
+Followed by:
+
+```text
+January
+February
+March
+...
+December
+```
+
+breakdown.
 
 ---
 
-# 39. Transaction Accountability
+# 40. Currency & Precision
 
-Important operational records should preserve:
+V1 currency:
+
+```text
+BDT
+```
+
+Money:
+
+```text
+Decimal(14,2)
+```
+
+Quantity:
+
+```text
+Decimal(14,3)
+```
+
+Floating-point types must not be used for financial values.
+
+---
+
+# 41. Document Numbering
+
+Invoice:
+
+```text
+INV-000001
+```
+
+Stock Entry:
+
+```text
+STK-000001
+```
+
+Payment Receipt:
+
+```text
+RCV-000001
+```
+
+Prefixes are configurable.
+
+---
+
+# 42. Void / Reversal Rules
+
+Only Owner can void posted invoices/payments.
+
+Posted invoice is not directly editable.
+
+Invoice void restores the exact consumed InventoryLots through reversal records.
+
+Paid invoices require related payment reversal before invoice voiding.
+
+---
+
+# 43. Sales Returns
+
+**Sales Returns are explicitly outside V1.**
+
+Incorrect recent invoices are handled through:
+
+```text
+Void
+→ Recreate correctly
+```
+
+Actual customer-return workflows are future scope.
+
+---
+
+# 44. Permission Matrix
+
+| Action | Owner | Admin | Staff |
+|---|:---:|:---:|:---:|
+| View Current Stock | ✓ | ✓ | ✓ |
+| View Stock History | ✓ | ✓ | ✓ |
+| Stock In | ✓ | ✓ | ✗ |
+| Manage Products | ✓ | ✓ | ✗ |
+| Manage Master Data | ✓ | ✓ | ✗ |
+| Manage Customers | ✓ | ✓ | ✓ |
+| Create Invoice | ✓ | ✓ | ✓ |
+| Sell ≥ Minimum Price | ✓ | ✓ | ✓ |
+| Sell Below Minimum | ✓ | ✗ | ✗ |
+| Print Invoice | ✓ | ✓ | ✓ |
+| Receive Payment | ✓ | ✓ | ✓ |
+| Customer Statement | ✓ | ✓ | ✓ |
+| Sales Reports | ✓ | ✓ | ✓ |
+| Collection Reports | ✓ | ✓ | ✓ |
+| Due Reports | ✓ | ✓ | ✓ |
+| Owner Dashboard | ✓ | ✗ | ✗ |
+| Monthly/Yearly Owner Analytics | ✓ | ✗ | ✗ |
+| Gross Profit | ✓ | ✗ | ✗ |
+| Sensitive Cost Reports | ✓ | ✗ | ✗ |
+| Void Payment | ✓ | ✗ | ✗ |
+| Void Posted Invoice | ✓ | ✗ | ✗ |
+| Manage Users | ✓ | ✗ | ✗ |
+| Business Settings | ✓ | ✗ | ✗ |
+
+---
+
+# 45. Transaction Accountability
+
+Important records should preserve:
 
 ```text
 created_by
 created_at
-```
-
-Where relevant:
-
-```text
 voided_by
 voided_at
-approved_by
 ```
 
-The owner should be able to identify which staff member performed important transactions.
-
-This is basic accountability, not a full enterprise audit platform.
+where applicable.
 
 ---
 
-# 40. Staff User Experience
+# 46. Technical Direction
 
-Normal staff should primarily see:
-
-```text
-Dashboard
-
-Sales
-- New Invoice
-- Invoice List
-
-Inventory
-- Current Stock
-- Stock In
-
-Customers
-- Customer List
-- Receive Payment
-
-Reports
-```
-
-Owner/Admin may additionally see:
-
-```text
-Products
-Users
-Settings
-Gross Profit
-Sensitive Reports
-```
-
-Technical concepts such as:
-
-```text
-InventoryLot
-InvoiceItemLotAllocation
-PaymentAllocation
-```
-
-must not be exposed to normal shop users.
-
----
-
-# 41. Important Edge Cases
-
-## Insufficient Stock
-
-```text
-→ Reject Sale
-```
-
-## Zero or Negative Quantity
-
-```text
-→ Reject
-```
-
-## Unauthorized Low Selling Price
-
-```text
-→ Reject or require Owner/Admin permission
-```
-
-## Browser-Manipulated Selling Price
-
-```text
-→ Backend validates independently
-```
-
-## Manipulated Invoice Total
-
-```text
-→ Backend recalculates
-```
-
-## Duplicate Submission
-
-```text
-→ Prevent duplicate invoice where reasonably possible
-```
-
-## Concurrent Sale
-
-```text
-→ Stock must never become negative
-```
-
-## Negative Payment
-
-```text
-→ Reject
-```
-
-## Unauthorized URL Access
-
-```text
-→ Backend denies
-```
-
-## Editing Posted Invoice
-
-```text
-→ Staff cannot silently change it
-```
-
-## Inactive Product
-
-Old invoice history must remain available even when a product is no longer sold.
-
----
-
-# 42. Technical Direction
-
-V1 technical stack:
+Stack:
 
 ```text
 Python
@@ -1320,191 +1150,64 @@ Architecture:
 Modular Monolith
 ```
 
-Deployment:
-
-```text
-Low-cost Django-compatible shared hosting
-```
-
-or:
-
-```text
-Small VPS
-```
-
-depending on hosting cost and reliability.
-
 ---
 
-# 43. Reusable Product Design
+# 47. Reusable Product Design
 
-Although the first business is an electrical shop, the codebase should remain reasonably generic.
+Business-specific configuration should remain data-driven:
 
-Avoid business rules such as:
-
-```text
-if product == "LED Bulb"
-```
-
-or:
-
-```text
-category = "Electrical"
-```
-
-Core configuration should come from data:
-
+- Business identity
 - Categories
 - Brands
 - Units
 - Products
 - Variants
 - Prices
-- Business information
 - Users
-- Permissions
+- Invoice prefixes
+
+Avoid hardcoded electrical-specific application logic.
 
 ---
 
-# 44. Near-Future Client Reuse
+# 48. Near-Future Reuse
 
-Near-future commercialization will use separate deployments.
-
-Example:
+Future client model:
 
 ```text
 Client A
-Electrical Shop
 → Deployment A
 → Database A
 
-
 Client B
-Hardware Shop
 → Deployment B
 → Database B
-
-
-Client C
-Electronics Shop
-→ Deployment C
-→ Database C
 ```
 
 Same core codebase.
 
-Different:
-
-- Business settings
-- Products
-- Categories
-- Brands
-- Prices
-- Customers
-- Users
-- Database
+No multi-tenancy is required.
 
 ---
 
-# 45. Future Applicable Businesses
-
-The same product may later be reused for businesses with substantially similar workflows, such as:
-
-```text
-Electrical Shop
-Hardware Shop
-Electronics Shop
-Motorcycle Parts Shop
-Accessories Shop
-Small Wholesale Shop
-Building Materials Shop
-```
-
-provided their core workflow remains:
-
-```text
-Product
-→ Variant
-→ Stock
-→ Sale
-→ Negotiated Price
-→ Payment
-→ Due
-→ Report
-```
-
----
-
-# 46. V1 Future-Reuse Requirements
-
-V1 must make these configurable:
-
-- Business identity
-- Invoice prefix
-- Categories
-- Brands
-- Units
-- Products
-- Variants
-- Standard prices
-- Minimum prices
-- Users
-- Roles
-
-Another similar client should mainly require:
-
-```text
-Clone
-+
-Configure
-+
-Enter/Import Data
-+
-Deploy
-```
-
-rather than core source-code redesign.
-
----
-
-# 47. Explicitly Not Included for Future Reuse
-
-Do not build in V1:
-
-- Multi-tenancy
-- Tenant IDs
-- SaaS subscription plans
-- Centralized tenant billing
-- Shared multi-business database
-- Automated tenant onboarding
-- Per-client feature-flag platform
-- Complex plugin architecture
-- Automated deployment platform
-
-These may be considered only after multiple paying customers validate the product.
-
----
-
-# 48. Out of Scope — BDT 25,000 V1
-
-The following are outside V1:
+# 49. V1 Out of Scope
 
 - Raw Material Management
-- BOM / Manufacturing
+- BOM
+- Manufacturing workflow
 - Full Accounting
 - General Ledger
 - Balance Sheet
 - Full P&L
 - Supplier Accounting
 - Purchase Management
-- VAT/Tax Management
+- VAT/Tax
 - Multiple Warehouses
-- Advanced Returns
+- Sales Returns
 - Payroll
-- Mobile Application
+- Mobile App
 - Complex Approval Workflow
 - Enterprise Fraud Detection
-- Enterprise Audit Platform
 - Barcode Hardware Integration
 - E-commerce Integration
 - Payment Gateway
@@ -1512,81 +1215,91 @@ The following are outside V1:
 - SaaS
 - Multi-Tenancy
 - Subscription Billing
-- Automated Client Provisioning
 
 ---
 
-# 49. Acceptance Criteria
+# 50. Acceptance Criteria
 
-V1 will be considered complete when:
+V1 is complete when:
 
-1. Finished products can be posted into stock.
-2. Products can have multiple variants / pack sizes.
-3. Different variants can have different rates.
-4. Batch/Lot numbers can be recorded where required.
-5. Categories, brands and units are configurable.
-6. Current stock can be viewed.
-7. Stock history is maintained.
+1. Finished goods can be posted into stock.
+2. Products support multiple variants.
+3. Different variants support different rates.
+4. Batch numbers can be recorded where required.
+5. Current stock can be viewed.
+6. FIFO lot consumption works.
+7. Stock movement history exists.
 8. Negative stock is prevented.
-9. Customers can be created and searched.
-10. Multi-item sales invoices can be created.
-11. Negotiated selling prices are supported.
-12. Unauthorized low-price sales are blocked.
-13. Backend recalculates invoice totals.
-14. Invoice creation and stock deduction remain consistent.
-15. Concurrent sales cannot create negative stock.
-16. Invoices can be printed.
-17. Cash collection can be recorded.
-18. Full and partial payments work.
-19. Later due payments work.
-20. Payment history remains available.
-21. Customer outstanding balances are accurate.
-22. Customer statements are available.
-23. Daily/monthly sales reports work.
-24. Collection reports work.
-25. Current stock reports work.
-26. Outstanding due reports work.
-27. Basic gross-profit reports use actual selling price and historical cost.
-28. Staff cannot silently modify protected posted transactions.
-29. Permissions are enforced server-side.
-30. Important transactions identify the responsible user.
-31. Business information is configurable.
-32. The same codebase can later be cloned and deployed for another similar shop without redesigning the core system.
+9. Customers can be managed.
+10. Multi-item invoices work.
+11. Negotiated selling prices work.
+12. Minimum-price restrictions work.
+13. Backend recalculates totals.
+14. Invoice and stock operations are atomic.
+15. Concurrent sales cannot oversell stock.
+16. Invoice printing works.
+17. Full/partial payments work.
+18. PaymentAllocation is used consistently.
+19. Customer due is accurate.
+20. Customer statements work.
+21. Daily sales reporting works.
+22. Monthly sales reporting works.
+23. Yearly sales reporting works.
+24. Monthly collection reporting works.
+25. Yearly collection reporting works.
+26. Gross-profit calculation uses historical InventoryLot cost.
+27. Monthly gross-profit summary works.
+28. Yearly gross-profit summary works.
+29. **Owner Dashboard supports Today / Monthly / Yearly views.**
+30. **Owner can select a month and see Sales, Collection, COGS, Gross Profit, Invoice Count and Current Outstanding.**
+31. **Owner can select a year and see annual totals.**
+32. **Yearly view provides January–December month-by-month Sales, Collection and Gross Profit breakdown.**
+33. Current outstanding receivable is calculated from unpaid invoice balances rather than summed historical monthly dues.
+34. Permissions are enforced server-side.
+35. Staff cannot modify protected posted transactions.
+36. Important transactions identify the responsible user.
+37. Business information is configurable.
+38. The codebase can be cloned for another similar shop without redesigning the core system.
 
 ---
 
-# 50. Final V1 Product Strategy
+# 51. Final V1 Product Strategy
 
-Build:
-
-```text
-A simple
-reliable
-low-cost
-single-business
-inventory + sales + collection + due system
-```
-
-that directly supports the original client requirement:
+The system should provide:
 
 ```text
 Finished Goods
-→ Stock Posting
-→ Pack/Variant
-→ Batch/Rate
-→ Invoice
-→ Print
-→ Cash Receive
-→ Partial Payment
-→ Due Statement
-→ Stock Report
-→ Monthly Sales
+→ Stock
+→ Sales
+→ Negotiated Price
+→ Collection
+→ Due
+→ Customer Statement
+→ Monthly Performance
+→ Yearly Performance
 → Gross Profit
-→ Outstanding Due
 ```
 
-while keeping the application configurable enough that the same codebase can later serve another similar shop through a separate deployment.
+For Staff:
 
-The guiding rule is:
+```text
+Fast operational workflow
+```
 
-> **Build exactly what the first shop needs now, keep it simple for real users, protect critical business data on the backend, and avoid hardcoding decisions that would prevent the same product from being reused for the next similar client.**
+For Owner:
+
+```text
+Today
+→ What happened today?
+
+Monthly
+→ How did this month perform?
+
+Yearly
+→ How did the whole year perform,
+   and which months were strongest or weakest?
+```
+
+The guiding rule remains:
+
+> **Build what the first real shop needs, keep staff workflows simple, give the Owner clear business visibility, protect business-critical calculations on the backend, and keep the core reusable for the next similar client.**
