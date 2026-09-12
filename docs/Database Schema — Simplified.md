@@ -226,6 +226,15 @@ POSTED
 VOID
 ```
 
+Payment status is derived from payment allocations and is never stored as the
+invoice lifecycle status:
+
+```text
+UNPAID   = allocated payments are 0
+PARTIAL  = allocated payments are greater than 0 and less than invoice total
+PAID     = allocated payments equal invoice total
+```
+
 ---
 
 ## InvoiceItem

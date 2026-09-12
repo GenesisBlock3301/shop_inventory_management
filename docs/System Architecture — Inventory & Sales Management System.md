@@ -300,7 +300,7 @@ Product
    │
    └── ProductVariant
            │
-           └── ProductBatch
+           └── InventoryLot
 ```
 
 Example:
@@ -339,14 +339,16 @@ Customer
 
 Product
 ProductVariant
-ProductBatch
+InventoryLot
 
 StockMovement
 
 Invoice
 InvoiceItem
+InvoiceItemLotAllocation
 
 Payment
+PaymentAllocation
 ```
 
 Relationship overview:
@@ -356,20 +358,23 @@ Product
    │
    └── ProductVariant
            │
-           └── ProductBatch
+           └── InventoryLot
                    │
                    └── StockMovement
 
 
 Customer
+   ├── Invoice
+   │      │
+   │      └── InvoiceItem
+   │             │
+   │             └── InvoiceItemLotAllocation
    │
-   └── Invoice
-         │
-         ├── InvoiceItem
-         │      │
-         │      └── ProductBatch
-         │
-         └── Payment
+   └── Payment
+          │
+          └── PaymentAllocation
+                 │
+                 └── Invoice
 ```
 
 ---
@@ -378,19 +383,18 @@ Customer
 
 Current stock must not exist without an underlying movement history.
 
-## ProductBatch
+## InventoryLot
 
 Example fields:
 
 ```text
 id
-product_variant_id
-batch_number
-cost_price
-selling_price
-current_quantity
-production_date
-created_at
+variant_id
+batch_no
+quantity_received
+quantity_remaining
+unit_cost
+received_at
 ```
 
 ## StockMovement
@@ -399,7 +403,7 @@ Example:
 
 ```text
 id
-batch_id
+lot_id
 movement_type
 quantity
 reference_type
@@ -419,7 +423,7 @@ ADJUSTMENT
 Example:
 
 ```text
-Batch B001
+Inventory Lot B001
 
 STOCK_IN     +100
 SALE          -15
@@ -428,7 +432,7 @@ SALE          -10
 Current        75
 ```
 
-`current_quantity` may be stored for efficient reads, while `StockMovement` provides the audit trail explaining how that quantity was reached.
+`quantity_remaining` may be stored for efficient reads, while `StockMovement` provides the audit trail explaining how that quantity was reached.
 
 ---
 
@@ -445,19 +449,26 @@ customer_id
 invoice_date
 subtotal
 total_amount
-paid_amount
-due_amount
-status
+lifecycle_status
 created_by
 created_at
 ```
 
-Possible statuses:
+Lifecycle statuses:
 
 ```text
-UNPAID
-PARTIALLY_PAID
-PAID
+DRAFT
+POSTED
+VOID
+```
+
+Payment status is derived for posted invoices and is not a lifecycle state or an
+editable field:
+
+```text
+UNPAID   = allocated payments are 0
+PARTIAL  = allocated payments are greater than 0 and less than invoice total
+PAID     = allocated payments equal invoice total
 ```
 
 ## InvoiceItem
@@ -465,22 +476,22 @@ PAID
 ```text
 id
 invoice_id
-batch_id
+variant_id
 quantity
 unit_price
-unit_cost
 line_total
 ```
 
-`unit_price` and `unit_cost` must be stored as historical snapshots.
+`unit_price` is a historical snapshot. Historical cost is preserved by the
+`InvoiceItemLotAllocation` records that link each sold quantity to its
+`InventoryLot`.
 
 For example:
 
 ```text
-Current Batch Cost = 180
+Current Inventory Lot Cost = 180
 
 Invoice Created:
-unit_cost = 180
 unit_price = 220
 ```
 
